@@ -14,5 +14,5 @@ with open("data/documents.json", "r") as f:
 for doc in docs:
     doc["embedding"] = embedder.create_embedding(doc["text"])["data"][0]["embedding"]
 
-with open("data/emb.json", "w") as f:
+with open("data/preprocessed_documents.json", "w") as f:
     json.dump(docs, f, indent=2)
