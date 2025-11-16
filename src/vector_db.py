@@ -7,7 +7,7 @@ with open("data/preprocessed_documents.json", "r") as f:
         preprocessed = json.load(f)
         
 d = 768
-nb = preprocessed[-1]["id"] + 1
+nb = len(preprocessed)
 batch_size = 1
 
 vectors = [doc["embedding"] for doc in preprocessed]
