@@ -32,7 +32,7 @@ print()
 print("[")
 for idx in range(I.size):
     if idx < (I.size - 1):
-        print(f"id: {I[0,idx]}\nDistance: {D[0,idx]}\nText: {preprocessed[idx]["text"]},\n")
+        print(f"id: {I[0,idx]}\nDistance: {D[0,idx]}\nText: {preprocessed[I[0,idx]]["text"]},\n")
     else:
-        print(f"id: {I[0,idx]}\nDistance: {D[0,idx]}\nText: {preprocessed[idx]["text"]}")
+        print(f"id: {I[0,idx]}\nDistance: {D[0,idx]}\nText: {preprocessed[I[0,idx]]["text"]}")
 print("]")
