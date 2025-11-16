@@ -1,40 +1,43 @@
+import llama_cpp
 from llama_cpp import Llama
-from multiprocessing import Pool
 import json
-import time
+import math
+
+BATCH_SIZE = 50
+embedder = Llama(
+    model_path="model/bge-base-en-v1.5-f32.gguf",
+    n_gpu_layers=-1,
+    n_ctx=512,
+    embedding=True,
+    verbose=False,
+    n_batch=BATCH_SIZE,
+    logits_all=False,
+    pooling_type=llama_cpp.LLAMA_POOLING_TYPE_MEAN
+)
 
 
-# Each worker loads the model once at startup
-embedder = None
-
-def init_worker():
-    global embedder
-    embedder = Llama(
-        model_path="model/bge-base-en-v1.5-f32.gguf",
-        n_gpu_layers=-1,
-        n_threads = 2,
-        embedding=True,
-        verbose=False
-    )
-
-def embed_doc(doc):
-    doc["embedding"] = embedder.create_embedding(doc["text"])["data"][0]["embedding"]
-    return doc  # must return updated doc
-
+def embed_batch(texts):
+    result = embedder.create_embedding(texts)
+    return [entry["embedding"] for entry in result["data"]]
 
 if __name__ == "__main__":
     print("-- Opening 'data/documents.json' --")
     with open("data/documents.json", "r") as f:
         docs = json.load(f)
-    print("-- Opened 'data/documents.json' and created JSON Object --")
-    
-    
-    print("-- Pooling embedding models across 8 processes --")
-    with Pool(processes=6, initializer=init_worker) as p:
-        processed_docs = p.map(embed_doc, docs)
-    print("-- Embedding models pooled and embeddings created --")
+    print("-- Loaded documents JSON --")
 
-    print("-- Creating 'data/preprocessed_documents.json' --")
+    print("-- Starting Embedding Process --")
+    texts = [doc["text"] for doc in docs]
+    all_embeddings = []
+    
+    for i in range(0, len(texts), BATCH_SIZE):
+        batch_texts = texts[i * BATCH_SIZE : (i + 1) * BATCH_SIZE]
+        all_embeddings.extend(embed_batch(batch_texts))
+    for doc, emb in zip(docs, all_embeddings):
+        doc["embedding"] = emb
+    print("-- Embedding Complete --")
+
+    print("-- Saving to 'data/preprocessed_documents.json' --")
     with open("data/preprocessed_documents.json", "w") as f:
-        json.dump(processed_docs, f, indent=2)
-    print("-- Embeddings complete and saved at 'data/preprocessed_documents.json' --")
+        json.dump(docs, f, indent=2)
+    print("-- Saved Successfully --")
