@@ -16,9 +16,9 @@ for doc in preprocessed:
 doc_matrix = np.array(vectors).reshape(DOC_COUNT,DIM)
 index = faiss.IndexFlatL2(DIM)
 index.add(doc_matrix)
-print(f"FAISS index has {index.ntotal} embeddings in its search space (should be 10000)")
 
 def search(query_embedding, top_k):
+    # query_embedding = query_embedding.reshape(1, DIM)
     D, I = index.search(query_embedding, k = top_k)
     D = np.array(D)
     I = np.array(I)
