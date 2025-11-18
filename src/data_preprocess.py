@@ -3,7 +3,7 @@ import json
 
 BATCH_SIZE = 50
 embedder = Llama(
-    model_path="model/bge-base-en-v1.5-f32.gguf",
+    model_path="models/bge-base-en-v1.5-f32.gguf",
     n_gpu_layers=-1,
     embedding=True,
     n_batch=BATCH_SIZE,

@@ -1,4 +1,5 @@
-/model
+models
 *.gguf
 preprocessed_documents.json
 tempCodeRunnerFile.py
+__pycache__
