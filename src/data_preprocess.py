@@ -1,16 +1,14 @@
 from llama_cpp import Llama
 import json
 
-BATCH_SIZE = 50
 embedder = Llama(
     model_path="models/bge-base-en-v1.5-f32.gguf",
     n_gpu_layers=-1,
     embedding=True,
-    n_batch=BATCH_SIZE,
     logits_all=False,
+    no_perf=True,
+    verbose=False
 )
-
-
 if __name__ == "__main__":
     print("-- Opening 'data/documents.json' --")
     with open("data/documents.json", "r") as f:
@@ -18,15 +16,8 @@ if __name__ == "__main__":
     print("-- Loaded documents JSON --")
 
     print("-- Starting Embedding Process --")
-    texts = [doc["text"] for doc in docs]
-    all_embeddings = []
-    
-    for i in range(0, len(texts), BATCH_SIZE):
-        batch_texts = texts[i:i+BATCH_SIZE]
-        all_embeddings.extend(embedder.embed(batch_texts))
-        
-    for doc, emb in zip(docs, all_embeddings):
-        doc["embedding"] = emb
+    for doc in docs:
+        doc["embedding"] = embedder.embed(doc["text"])
     print("-- Embedding Complete --")
 
     print("-- Saving to 'data/preprocessed_documents.json' --")
